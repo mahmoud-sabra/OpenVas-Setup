@@ -28,18 +28,35 @@ cd $DOWNLOAD_DIR && curl -f -L https://greenbone.github.io/docs/latest/_static/d
    mkdir -p /tmp/gvm/gvmd
    chmod -R 777 /tmp/gvm
   ```
+# In the next step, the docker compose file must be changed as follows:
+  ```
+  gvmd:
+    image: greenbone/gvmd:stable
+    restart: on-failure
+    volumes:
+       - gvmd_data_vol:/var/lib/gvm
+       - vt_data_vol:/var/lib/openvas
+       - psql_data_vol:/var/lib/postgresql
+-      - gvmd_socket_vol:/run/gvmd  # before
++      - /tmp/gvm/gvmd:/run/gvmd   # after
+       - ospd_openvas_socket_vol:/run/ospd
+       - psql_socket_vol:/var/run/postgresql
+     depends_on:
+      - pg-gvm
+```
+```
+  gsa:
+    image: greenbone/gsa:stable
+    restart: on-failure
+     ports:
+       - 9392:80
+     volumes:
+-      - gvmd_socket_vol:/run/gvmd # before
++      - /tmp/gvm/gvmd:/run/gvmd  # after
+     depends_on:
+       - gvmd
+```
 
-# Start the Greenbone Community Edition container.
-```
-docker compose -f $DOWNLOAD_DIR/docker-compose.yml -p greenbone-community-edition up -d
-```
-# Setting up an Admin User
-```
-docker compose -f $DOWNLOAD_DIR/docker-compose.yml -p greenbone-community-edition \
-    exec -u gvmd gvmd gvmd --user=admin --new-password='<password>'
-```
-
-    
 # To allow remote access to the Greenbone Web Interface, you need to modify the docker compose file to configure the web server (gsad) to listen on all network interfaces. 
 
 1. Open the docker-compose.yml file in a text editor.
@@ -61,6 +78,16 @@ docker compose -f $DOWNLOAD_DIR/docker-compose.yml -p greenbone-community-editio
     depends_on:
       - gvmd
 ```
+# Start the Greenbone Community Edition container.
+```
+docker compose -f $DOWNLOAD_DIR/docker-compose.yml -p greenbone-community-edition up -d
+```
+# Setting up an Admin User
+```
+docker compose -f $DOWNLOAD_DIR/docker-compose.yml -p greenbone-community-edition \
+    exec -u gvmd gvmd gvmd --user=admin --new-password='<password>'
+```
+
 # Performing a Feed Synchronization
 ## To download the latest feed data container images run
 ```
@@ -71,6 +98,7 @@ docker compose -f $DOWNLOAD_DIR/docker-compose.yml -p greenbone-community-editio
 ```
 docker compose -f $DOWNLOAD_DIR/docker-compose.yml -p greenbone-community-edition up -d notus-data vulnerability-tests scap-data dfn-cert-data cert-bund-data report-formats data-objects
 ```
+
 
 
     
