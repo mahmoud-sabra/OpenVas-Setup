@@ -1,1 +1,0 @@
-# OpenVas-Setup
