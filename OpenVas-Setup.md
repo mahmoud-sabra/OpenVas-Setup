@@ -30,12 +30,14 @@ cd $DOWNLOAD_DIR && curl -f -L https://greenbone.github.io/docs/latest/_static/d
   ```
 
 # Start the Greenbone Community Edition container.
+```
 docker compose -f $DOWNLOAD_DIR/docker-compose.yml -p greenbone-community-edition up -d
-
+```
 # Setting up an Admin User
+```
 docker compose -f $DOWNLOAD_DIR/docker-compose.yml -p greenbone-community-edition \
     exec -u gvmd gvmd gvmd --user=admin --new-password='<password>'
-
+```
 
     
 # To allow remote access to the Greenbone Web Interface, you need to modify the docker compose file to configure the web server (gsad) to listen on all network interfaces. 
@@ -58,6 +60,7 @@ docker compose -f $DOWNLOAD_DIR/docker-compose.yml -p greenbone-community-editio
       - gvmd_socket_vol:/run/gvmd
     depends_on:
       - gvmd
+```
 # Performing a Feed Synchronization
 ## To download the latest feed data container images run
 ```
